@@ -21,7 +21,7 @@ export function SpotlightPreview1() {
           Verify your identity using ZKP
         </h1>
         <h1 className="bg-opacity-50 bg-gradient-to-b from-neutral-50 mt-2 to-neutral-400 bg-clip-text text-center text-4xl font-normal text-transparent md:text-2xl">
-        Prove you're legit without exposing personal data
+        Prove you&apos;re legit without exposing personal data
         </h1>
         {/* <p className="mx-auto mt-4 max-w-lg text-center text-base font-normal text-neutral-300">
         Prove you're legit without exposing personal data

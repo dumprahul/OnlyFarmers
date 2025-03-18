@@ -25,7 +25,7 @@ export const GlareCard = ({
       y: 0,
     },
   });
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
     "--m-x": "50%",
     "--m-y": "50%",
     "--r-x": "0deg",
@@ -38,7 +38,8 @@ export const GlareCard = ({
     "--radius": "48px",
     "--easing": "ease",
     "--transition": "var(--duration) var(--easing)",
-  } as any;
+  } as React.CSSProperties;
+  
 
   const backgroundStyle = {
     "--step": "5%",
@@ -51,7 +52,7 @@ export const GlareCard = ({
     "--shade":
       "radial-gradient( farthest-corner circle at var(--m-x) var(--m-y),rgba(255,255,255,0.1) 12%,rgba(255,255,255,0.15) 20%,rgba(255,255,255,0.25) 120% ) var(--bg-x) var(--bg-y)/300% no-repeat",
     backgroundBlendMode: "hue, hue, hue, overlay",
-  };
+  }as React.CSSProperties as Record<string, string>;
 
   const updateStyles = () => {
     if (refElement.current) {
