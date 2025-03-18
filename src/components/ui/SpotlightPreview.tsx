@@ -23,9 +23,6 @@ export function SpotlightPreview() {
         <h1 className="bg-opacity-50 bg-gradient-to-b from-neutral-50 mt-2 to-neutral-400 bg-clip-text text-center text-4xl font-bold text-transparent md:text-4xl">
           Harvest the Future with BTCFi and AI
         </h1>
-        {/* <p className="mx-auto mt-4 max-w-2xl text-center text-base font-normal text-neutral-300">
-          Harvest the Future with BTCFi and AI
-        </p> */}
         <button className="bg-black dark:bg-white ml-142 mt-6 rounded-full w-fit text-white dark:text-black px-4 py-2">
           Get Started
         </button>
