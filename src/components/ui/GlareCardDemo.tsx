@@ -152,18 +152,21 @@ export function GlareCardDemo() {
               </div>
 
               <div>
-                <label htmlFor="title" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
-                  Duration of the Stake
-                </label>
-                <input
-                  id="duration"
-                  type="text"
-                  placeholder="Enter duration"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full mt-1 p-2 border rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-white"
-                />
-              </div>
+      <label htmlFor="duration" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
+        Duration of the Stake
+      </label>
+      <select
+        id="duration"
+        value={duration}
+        onChange={(e) => setDuration(e.target.value)}
+        className="w-full mt-1 p-2 border rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-white"
+      >
+        <option value="" disabled>Select duration</option>
+        <option value="3 months">3 Months</option>
+        <option value="6 months">6 Months</option>
+        <option value="1 year">1 Year</option>
+      </select>
+    </div>
 
               </div>
               <div className="py-10 ml-45">
