@@ -1,8 +1,10 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "./Spotlight";
+import { useRouter } from 'next/navigation'
 
 export function SpotlightPreview() {
+  const router = useRouter()
   return (
     <div className="relative flex h-full w-full overflow-hidden rounded-md bg-black/[0.96] antialiased md:items-center md:justify-center">
       <div
@@ -28,7 +30,7 @@ export function SpotlightPreview() {
          Turning real-time farm data into smart investments - where crops grow, 
         profits flow, and Web3 complexity stays out of sight!
         </p>
-        <button className="bg-black dark:bg-white ml-142 mt-6 rounded-full w-fit text-white dark:text-black px-4 py-2">
+        <button type="button" onClick={() => router.push('/verify')} className="bg-black dark:bg-white ml-142 mt-6 rounded-full w-fit text-white dark:text-black px-4 py-2">
           Get Started
         </button>
       </div>
