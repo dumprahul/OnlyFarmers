@@ -1,6 +1,6 @@
 import { createWalletClient, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { coreTestnet } from '../chain-definitions/defChain';
+import { coreTestnet } from '../chain-definitions/coretestnet';
 
 export function createViemWalletClient() {
     if (!process.env.PRIVATE_KEY) {
