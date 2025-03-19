@@ -28,7 +28,9 @@ export function GlareCardDemo() {
   const [duration, setDuration] = useState("");
 
   return (
-    <div className="ml-5 grid grid-cols-1 md:grid-cols-4 px-20 py-5 gap-10">
+    <div className="w-full bg-black">
+      
+    <div className="ml-5 grid grid-cols-1 md:grid-cols-4 px-20 py-2 gap-10">
       <Modal>
         <ModalTrigger>
           <GlareCard className="flex flex-col items-start justify-end py-8 px-6">
@@ -42,36 +44,39 @@ export function GlareCardDemo() {
           </GlareCard>
         </ModalTrigger>
         <ModalBody>
-          <ModalContent>
-          <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-6">
-    Does this look like an
-    <span className="px-2 py-1 rounded-md bg-gray-100 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 ml-1">
+        <ModalContent>
+  <h4 className="text-xl md:text-2xl text-neutral-800 dark:text-neutral-100 font-bold text-center mb-4">
+    Does this look like an{" "}
+    <span className="px-2 py-1 rounded-lg bg-gray-200 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 ml-1">
       Opportunity
-    </span> to you?
+    </span>
+    {" "}?
   </h4>
-  <hr className="border-gray-300 dark:border-neutral-700" />
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 text-lg text-neutral-600 dark:text-neutral-100 font-medium">
-    <div className="flex justify-around">
-      <span>AI Max Yield:</span>
-      <span className="font-semibold">83%</span>
+
+  <hr className="border-gray-300 dark:border-neutral-700 py-2 mb-4" />
+
+  <div className="space-y-4 text-lg text-neutral-100 font-medium">
+    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+      <span className="text-gray-400">Farm Health</span>
+      <span className="font-semibold text-white">72</span>
     </div>
-    <div className="flex justify-around">
-      <span>Yield Score:</span>
-      <span className="font-semibold">72</span>
+    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+      <span className="text-gray-400">Yield Score</span>
+      <span className="font-semibold text-white">65</span>
+    </div>
+    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+      <span className="text-gray-400">Farm APY</span>
+      <span className="font-semibold text-white">59%</span>
+    </div>
+    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+      <span className="text-gray-400">Farmer Address</span>
+      <span className="font-mono text-blue-400">2649jhsb36f</span>
     </div>
   </div>
-  <h2 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-medium text-center mt-6">
-    APY (Current) %: <span className="font-bold">72%</span>
-  </h2>
-  <p className="text-lg md:text-sm text-neutral-600 dark:text-neutral-100 font-medium text-center ">
-    (Per Year)
-  </p>
-
-  <h2 className="text-lg md:text-4xl text-neutral-600 dark:text-neutral-100 font-bold text-center mt-6">
-    Total Staked: <span className="text-indigo-500">1,543</span>
-  </h2>
 </ModalContent>
-<ModalFooter className="flex justify-center gap-6 mt-6">
+
+
+<ModalFooter className="flex justify-center gap-75 mt-6">
   <Modal>
     <ModalTrigger>
       <button className="px-4 py-2 bg-gray-200 text-black dark:bg-black dark:text-white border border-gray-300 rounded-md text-sm">
@@ -120,71 +125,61 @@ export function GlareCardDemo() {
             
         <ModalBody>
         <ModalContent>
-      <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
-        Are you ready to{" "}
-        <span className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 border border-gray-200">
-          Stake
-        </span>
-        {" "}on this field?
-      </h4>
-      <hr className="border-gray-300 dark:border-neutral-700" />
-      <div className="el-form-item asterisk-left pt-10 el-form-item--label-left">
-        <div className="el-form-item__content" style={{ marginLeft: "0px" }}>
-          <div className="w-full caption1 mb-6 flex items-center justify-between">
-            <div className="flex items-center">
-              BTC Staking Amount:
-              
-            </div>
-            <div className="flex items-center cursor-pointer">
-              <span>Connect</span>
-            </div>
-          </div>
+  <h4 className="text-xl md:text-2xl text-neutral-800 dark:text-neutral-100 font-bold text-center mb-6">
+    Are you ready to{" "}
+    <span className="px-2 py-1 rounded-lg bg-gray-200 dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 mx-1">
+      Stake
+    </span>
+    {" "}on this field?
+  </h4>
 
-          <div className="core-input-with-symbol flex items-center w-full">
-            <div className="input-container flex items-center flex-1">
-              <input
-                id="title"
-                type="text"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="el-input__inner w-full p-2 border-0 bg-gray-100 dark:bg-gray-800 dark:text-white"
-              />
-              <button className="core-max-button cursor-pointer flex items-center caption2 ml-4">
-                MAX
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+  <hr className="border-gray-300 dark:border-neutral-700 mb-4" />
 
-      <div className="el-form-item asterisk-left pt-10 el-form-item--label-left">
-  <div className="el-form-item__content" style={{ marginLeft: "0px" }}>
-    <div className="w-full caption1 mb-6 flex items-center justify-between">
-      <div className="flex items-center">
-        Duration of the Stake:
-      </div>
+  {/* BTC Staking Amount */}
+  <div className="p-4 mt-5 bg-black border border-gray-600 rounded-lg">
+    <div className="flex justify-between items-center mb-2 text-gray-400">
+      <span>BTC Staking Amount</span>
+      
     </div>
-        <select
-          id="duration"
-          value={duration}
-          onChange={(e) => setDuration(e.target.value)}
-          className="w-full mt-1 p-2 border rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-white"
-        >
-          <option value="" disabled>Select duration</option>
-          <option value="3 months">3 Months</option>
-          <option value="6 months">6 Months</option>
-          <option value="1 year">1 Year</option>
-        </select>
-      </div>
-      </div>
+    <div className="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2">
+      <input
+        id="title"
+        type="text"
+        placeholder="0.00"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none p-2"
+      />
+      
+    </div>
+  </div>
 
-      <div className="py-2 pt-5 flex justify-center">
-        <button className="bg-black text-white dark:bg-white dark:text-black text-2xl font-bold px-4 py-2 rounded-md border border-black w-32">
-          Confirm
-        </button>
-      </div>
-    </ModalContent>
+  {/* Duration Selection */}
+  <div className="p-4 bg-black border border-gray-600 rounded-lg mt-4">
+    <div className="mb-2 text-gray-400">Duration of the Stake</div>
+    <select
+      id="duration"
+      value={duration}
+      onChange={(e) => setDuration(e.target.value)}
+      className="w-full p-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring focus:ring-indigo-400"
+    >
+      <option value="" disabled>Select duration</option>
+      <option value="3 months">3 Months</option>
+      <option value="6 months">6 Months</option>
+      <option value="1 year">1 Year</option>
+    </select>
+  </div>
+
+  {/* Confirm Button */}
+  <div className="pt-6 flex justify-center">
+  <button className="w-36 py-3 text-lg font-semibold tracking-wide rounded-full border border-gray-500 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out">
+    Confirm
+  </button>
+</div>
+
+
+</ModalContent>
+
           
         </ModalBody>
       
@@ -247,6 +242,7 @@ export function GlareCardDemo() {
           PiCore ID : PiC89
         </p>
       </GlareCard>
+    </div>
     </div>
   );
 }
