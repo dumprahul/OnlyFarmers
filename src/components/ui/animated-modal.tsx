@@ -160,6 +160,7 @@ export const ModalFooter = ({
   children: ReactNode;
   className?: string;
 }) => {
+  
   return (
     <div
       className={cn(
@@ -168,6 +169,7 @@ export const ModalFooter = ({
       )}
     >
       {children}
+      
     </div>
   );
 };

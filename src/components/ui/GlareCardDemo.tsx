@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useState } from "react";
 import {
   Modal,
   ModalBody,
@@ -19,7 +20,13 @@ const data = [
   { name: "May", yield: 72 },
 ];
 
+
+  
+
 export function GlareCardDemo() {
+  const [amount, setAmount] = useState("");
+  const [duration, setDuration] = useState("");
+
   return (
     <div className="ml-5 grid grid-cols-1 md:grid-cols-4 px-20 py-5 gap-10">
       <Modal>
@@ -43,6 +50,48 @@ export function GlareCardDemo() {
               </span>{" "}
               to you?
             </h4>
+<hr/>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pt-10 text-lg ml-7 md:text-2xl text-neutral-600 dark:text-neutral-100 font-normal">
+    {/* Row 1 */}
+    <div className="grid grid-cols-[max-content_10px_auto] gap-2">
+      <span className="font-medium">AI Max Yield</span>
+      <span>:</span>
+      <span>83%</span>
+    </div>
+    <div className="grid grid-cols-[max-content_10px_auto] gap-2">
+      <span className="font-medium">Yield Score</span>
+      <span>:</span>
+      <span>72</span>
+    </div>
+    </div>
+    
+
+            <h2 className="text-lg md:text-2xl text-neutral-600 py-10 dark:text-neutral-100 font-medium text-center mb-8">
+              APY (Current) % : 72%
+            </h2>
+
+            <h2 className="text-lg md:text-4xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
+              Total Staked : 1543
+            </h2>
+  
+          
+          </ModalContent>
+          <ModalFooter className="gap-80">
+            <Modal >
+        <ModalTrigger>
+            <button className="px-2 py-1 bg-gray-200 text-black dark:bg-black dark:border-black dark:text-white border border-gray-300 rounded-md text-sm w-28">
+              More Details
+            </button>
+            </ModalTrigger>
+        <ModalBody>
+          <ModalContent>
+            <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
+              Take a look at the{" "}
+              <span className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 border border-gray-200">
+                Progress
+              </span>{" "}
+              over months!
+            </h4>
 
             <h2 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
               Max Yield : 72%
@@ -62,13 +111,80 @@ export function GlareCardDemo() {
             </div>
 
           </ModalContent>
-          <ModalFooter className="gap-4">
-            <button className="px-2 py-1 bg-gray-200 text-black dark:bg-black dark:border-black dark:text-white border border-gray-300 rounded-md text-sm w-28">
-              Cancel
+          <ModalFooter className="gap-80">
+          <button className="px-2 py-1 bg-gray-200 mr-110 text-black dark:bg-black dark:border-black dark:text-white border border-gray-300 rounded-md text-sm w-28">
+              Go Back
             </button>
+            </ModalFooter>
+        </ModalBody>
+      
+      </Modal>
+
+      <Modal>
+        <ModalTrigger>
             <button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
               Stake 
             </button>
+            </ModalTrigger>
+        <ModalBody>
+          <ModalContent>
+          <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
+              Are you ready to{" "}
+              <span className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 border border-gray-200">
+                Stake
+              </span>{" "}
+              on this field?
+            </h4>
+
+            <div className=" py-3 space-y-5">
+              <div>
+                <label htmlFor="title" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
+                  Amount to be Staked
+                </label>
+                <input
+                  id="title"
+                  type="text"
+                  placeholder="Enter amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full mt-1 p-2 border rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="title" className="block text-sm font-bold text-gray-700 dark:text-gray-300">
+                  Duration of the Stake
+                </label>
+                <input
+                  id="duration"
+                  type="text"
+                  placeholder="Enter duration"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="w-full mt-1 p-2 border rounded-lg bg-gray-100 dark:bg-gray-800 dark:text-white"
+                />
+              </div>
+
+              </div>
+              <div className="py-10 ml-45">
+              {/* <button className="shadow-[0_0_0_3px_#000000_inset] px-6 py-2 bg-transparent border border-black dark:border-white dark:text-white text-black rounded-lg font-medium transform hover:-translate-y-1 transition duration-400">
+                CONFIRM
+              </button> */}
+              <button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-2 rounded-md border border-black w-28">
+              Confirm
+            </button>
+              </div>
+
+          </ModalContent>
+          
+        </ModalBody>
+      
+      </Modal>
+
+
+
+
+
           </ModalFooter>
         </ModalBody>
       
