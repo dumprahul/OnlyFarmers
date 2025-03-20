@@ -1,28 +1,42 @@
-// src/components/Contract.tsx
 'use client';
-
-import { useState } from 'react';
-import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract } from 'wagmi';
+import { useState, useEffect } from 'react';
+import { useAccount, useConnect, useDisconnect, useReadContract, useSwitchChain, useWriteContract, useBalance } from 'wagmi';
 import { injected } from 'wagmi/connectors';
+import { coreTestnet } from '../utils/wagmiClient';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../utils/config';
+import { parseEther, formatEther } from 'viem';
 
-export default function Contract() {
-  const { address, isConnected } = useAccount();
+export default function YourComponent() {
+  const { address, isConnected, chainId } = useAccount();
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
-  const [number, setNumber] = useState<string>('');
+  const { switchChain } = useSwitchChain();
+  const [farmId, setFarmId] = useState<string>('1');
+  const [amount, setAmount] = useState("");
+  const [duration, setDuration] = useState("");
+  const [isStaking, setIsStaking] = useState(false);
+  const [stakeError, setStakeError] = useState<string | null>(null);
+  const [stakeSuccess, setStakeSuccess] = useState(false);
   
-  // For reading the stored number
-  const { data: storedNumber, refetch } = useReadContract({
+  const isCorrectNetwork = chainId === coreTestnet.id;
+  
+  // Get Core token balance
+  const { data: coreBalance } = useBalance({
+    address,
+    enabled: isConnected && isCorrectNetwork,
+  });
+  
+  // Read available farms
+  const { data: farmCount } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
-    functionName: 'getNumber',
+    functionName: 'farmCount',
+    enabled: isConnected && isCorrectNetwork,
   });
-
-  // For setting a new number
-  const { writeContract, isPending, isSuccess, isError, error } = useWriteContract();
-
-  // Connect wallet
+  
+  // Use the new write contract hook
+  const { writeContract, isPending: isWritePending, isSuccess, isError, error } = useWriteContract();
+  
   const connectWallet = async () => {
     try {
       await connect({ connector: injected() });
@@ -30,89 +44,181 @@ export default function Contract() {
       console.error('Failed to connect:', err);
     }
   };
-
-  // Set a new number
-  const storeNumber = async () => {
-    if (!isConnected || !number) return;
+  
+  const switchToCorrectNetwork = async () => {
+    try {
+      await switchChain({ chainId: coreTestnet.id });
+    } catch (err) {
+      console.error('Failed to switch network:', err);
+    }
+  };
+  
+  // Handle staking function
+  const handleStake = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStakeError(null);
+    setStakeSuccess(false);
+    
+    if (!isCorrectNetwork) {
+      setStakeError('Please switch to Core Testnet');
+      return;
+    }
+    
+    if (!farmId || parseInt(farmId) <= 0) {
+      setStakeError('Please select a valid farm');
+      return;
+    }
+    
+    if (!amount || parseFloat(amount) <= 0) {
+      setStakeError('Amount must be greater than 0');
+      return;
+    }
+    
+    // Check if user has enough CORE tokens
+    if (coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value))) {
+      setStakeError('Insufficient CORE balance');
+      return;
+    }
     
     try {
+      setIsStaking(true);
+      
+      // Use the new contract write format
       writeContract({
         address: CONTRACT_ADDRESS as `0x${string}`,
         abi: CONTRACT_ABI,
-        functionName: 'setNumber',
-        args: [BigInt(number)], // Convert string to BigInt for uint256
+        functionName: 'stake',
+        args: [BigInt(farmId)],
+        value: parseEther(amount),
       });
-    } catch (err) {
-      console.error('Transaction failed:', err);
+      
+    } catch (err: any) {
+      console.error('Staking error:', err);
+      setStakeError(err?.message || 'Failed to stake tokens');
+      setIsStaking(false);
     }
   };
-
+  
+  // Handle write contract results
+  useEffect(() => {
+    if (isSuccess) {
+      setStakeSuccess(true);
+      setAmount('');
+      setIsStaking(false);
+    }
+    
+    if (isError && error) {
+      setStakeError(error.message || 'Transaction failed');
+      setIsStaking(false);
+    }
+  }, [isSuccess, isError, error]);
+  
+  // Generate farm options
+  const farmOptions = [];
+  if (farmCount) {
+    for (let i = 1; i <= Number(farmCount); i++) {
+      farmOptions.push(
+        <option key={i} value={i}>
+          Farm #{i}
+        </option>
+      );
+    }
+  }
+  
   return (
-    <div className="p-6 border rounded-lg shadow-md max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center">Simple Storage</h2>
-      
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       {!isConnected ? (
-        <div className="text-center">
-          <p className="mb-4">Connect your wallet to interact with the contract</p>
+        <button 
+          onClick={connectWallet}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Connect Wallet
+        </button>
+      ) : !isCorrectNetwork ? (
+        <div>
+          <p className="text-yellow-500 mb-2">Please switch to Core Testnet</p>
           <button 
-            onClick={connectWallet}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition"
+            onClick={switchToCorrectNetwork}
+            className="bg-yellow-500 text-white px-4 py-2 rounded"
           >
-            Connect Wallet
+            Switch to Core Testnet
           </button>
         </div>
       ) : (
         <div>
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-sm truncate">Connected: {address}</p>
-            <button 
-              onClick={() => disconnect()}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 text-sm rounded"
-            >
-              Disconnect
-            </button>
-          </div>
+          <p className="mb-2">Connected to Core Testnet: {address?.substring(0, 6)}...{address?.substring(address.length - 4)}</p>
           
-          <div className="bg-gray-50 p-4 rounded-lg mb-6">
-            <h3 className="font-medium mb-2">Current Stored Number</h3>
-            <div className="flex items-center justify-between">
-              <p className="text-xl font-bold">{storedNumber ? storedNumber.toString() : 'Loading...'}</p>
-              <button 
-                onClick={() => refetch()} 
-                className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm"
-              >
-                Refresh
-              </button>
+          {/* Display Core balance */}
+          <p className="mb-4 text-gray-700">
+            Your CORE Balance: {coreBalance ? parseFloat(formatEther(coreBalance.value)).toFixed(4) : '0'} CORE
+          </p>
+          
+          {stakeError && (
+            <div className="bg-red-100 p-4 rounded-md mb-4">
+              <p className="text-red-800">{stakeError}</p>
             </div>
-          </div>
+          )}
           
-          <div>
-            <h3 className="font-medium mb-3">Store New Number</h3>
-            <input
-              type="number"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-              className="border rounded px-3 py-2 w-full mb-3"
-              placeholder="Enter a number"
-            />
+          {stakeSuccess && (
+            <div className="bg-green-100 p-4 rounded-md mb-4">
+              <p className="text-green-800">Successfully staked CORE tokens!</p>
+            </div>
+          )}
+          
+          <form onSubmit={handleStake} className="mt-4">
+            <div className="mb-4">
+              <label className="block text-gray-700 font-medium mb-2" htmlFor="farmId">
+                Select Farm
+              </label>
+              <select
+                id="farmId"
+                value={farmId}
+                onChange={(e) => setFarmId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isStaking || isWritePending}
+              >
+                {farmOptions.length > 0 ? (
+                  farmOptions
+                ) : (
+                  <option value="1">Farm #1</option>
+                )}
+              </select>
+            </div>
+            
+            <div className="mb-6">
+              <label className="block text-gray-700 font-medium mb-2" htmlFor="amount">
+                CORE Amount to Stake
+              </label>
+              <div className="relative">
+                <input
+                  id="amount"
+                  type="number"
+                  step="0.0001"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0.0"
+                  disabled={isStaking || isWritePending}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <span className="text-gray-500">CORE</span>
+                </div>
+              </div>
+              {amount && coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value)) && (
+                <p className="text-red-500 text-sm mt-1">Insufficient balance</p>
+              )}
+            </div>
+            
             <button
-              onClick={storeNumber}
-              disabled={isPending || !number}
-              className={`w-full bg-green-500 text-white px-4 py-2 rounded ${
-                isPending || !number ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'
+              type="submit"
+              className={`w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isStaking || isWritePending ? 'opacity-50 cursor-not-allowed' : ''
               }`}
+              disabled={isStaking || isWritePending || (amount && coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value)))}
             >
-              {isPending ? 'Processing...' : 'Store Number'}
+              {isStaking || isWritePending ? 'Staking...' : 'Stake CORE Tokens'}
             </button>
-            
-            {isSuccess && (
-              <p className="text-green-500 mt-2 text-center">Number stored successfully!</p>
-            )}
-            
-            {isError && (
-              <p className="text-red-500 mt-2 text-center">Error: {error?.message}</p>
-            )}
-          </div>
+          </form>
         </div>
       )}
     </div>

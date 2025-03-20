@@ -10,11 +10,15 @@ import {
 } from "./animated-modal";
 import { GlareCard } from "../ui/glare-card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/config'; // Adjust the path as needed
-import { useAccount, useConnect, useDisconnect,useSwitchChain } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useReadContract, useSwitchChain, useWriteContract, useBalance } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 import { coreTestnet } from '../../utils/wagmiClient';
+import { parseEther,formatEther } from "viem";
+
+
+
+
 // Sample data for the graph
 const data = [
   { name: "Jan", yield: 50 },
@@ -36,8 +40,110 @@ export function GlareCardDemo() {
   const [amount, setAmount] = useState("");
   const [duration, setDuration] = useState("");
 
+  const [isStaking, setIsStaking] = useState(false);
+  const [stakeError, setStakeError] = useState<string | null>(null);
+  const [stakeSuccess, setStakeSuccess] = useState(false);
+
   const isCorrectNetwork = chainId === coreTestnet.id;
 
+
+  const { data: coreBalance } = useBalance({
+    address,
+    enabled: isConnected && isCorrectNetwork,
+  });
+
+  const { data: farmCount } = useReadContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: CONTRACT_ABI,
+    functionName: 'farmCount',
+    enabled: isConnected && isCorrectNetwork,
+  });
+
+  const { writeContract, isPending: isWritePending, isSuccess, isError, error } = useWriteContract();
+
+  const handleStake = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStakeError(null);
+    setStakeSuccess(false);
+    
+    if (!isCorrectNetwork) {
+      setStakeError('Please switch to Core Testnet');
+      return;
+    }
+    
+    if (!farmId || parseInt(farmId) <= 0) {
+      setStakeError('Please select a valid farm');
+      return;
+    }
+    
+    if (!amount || parseFloat(amount) <= 0) {
+      setStakeError('Amount must be greater than 0');
+      return;
+    }
+    
+    if (!duration) {
+      setStakeError('Please select a staking duration');
+      return;
+    }
+    
+    // Check if user has enough CORE tokens
+    if (coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value))) {
+      setStakeError('Insufficient CORE balance');
+      return;
+    }
+    
+    try {
+      setIsStaking(true);
+      
+      // Get duration in seconds based on selection
+      let durationInSeconds;
+      switch (duration) {
+        case '3 months':
+          durationInSeconds = 7776000; // 90 days
+          break;
+        case '6 months':
+          durationInSeconds = 15552000; // 180 days
+          break;
+        case '1 year':
+          durationInSeconds = 31104000; // 360 days
+          break;
+        default:
+          durationInSeconds = 7776000; // Default to 3 months
+      }
+      
+      // Use the contract write format
+      writeContract({
+        address: CONTRACT_ADDRESS as `0x${string}`,
+        abi: CONTRACT_ABI,
+        functionName: 'stake',
+        args: [BigInt(farmId)],
+        value: parseEther(amount),
+      });
+
+      // args: [BigInt(farmId), BigInt(durationInSeconds)],
+      
+    } catch (err: any) {
+      console.error('Staking error:', err);
+      setStakeError(err?.message || 'Failed to stake tokens');
+      setIsStaking(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setStakeSuccess(true);
+      setAmount('');
+      setDuration('');
+      setIsStaking(false);
+    }
+    
+    if (isError && error) {
+      setStakeError(error.message || 'Transaction failed');
+      setIsStaking(false);
+    }
+  }, [isSuccess, isError, error]);
+  
+  
 
   const connectAndSwitchNetwork = async () => {
     try {
@@ -49,7 +155,7 @@ export function GlareCardDemo() {
   };
   
 
-  const { data: farmInfo, refetch, isLoading, isError, error } = useReadContract({
+  const { data: farmInfo, refetch, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
     functionName: 'getFarmInfo',
@@ -164,11 +270,14 @@ export function GlareCardDemo() {
 
 <ModalFooter className="flex justify-center gap-75 mt-6">
   <Modal>
-    <ModalTrigger>
-      <button className="px-4 py-2 bg-gray-200 text-black dark:bg-black dark:text-white border border-gray-300 rounded-md text-sm">
-        More Details
-      </button>
-    </ModalTrigger>
+  <ModalTrigger>
+    <div 
+      className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-2 rounded-md border border-black w-28 cursor-pointer"
+      onClick={connectAndSwitchNetwork}
+    >
+      Connect Wallet
+    </div>
+  </ModalTrigger>
     <ModalBody>
           <ModalContent>
             <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
@@ -220,49 +329,129 @@ export function GlareCardDemo() {
   </h4>
 
   <hr className="border-gray-300 dark:border-neutral-700 mb-4" />
+  
 
-  {/* BTC Staking Amount */}
-  <div className="p-4 mt-5 bg-black border border-gray-600 rounded-lg">
-    <div className="flex justify-between items-center mb-2 text-gray-400">
-      <span>BTC Staking Amount</span>
-      
+  <div className="max-w-md mx-auto p-6 bg-gray-900 rounded-lg shadow-lg">
+      {!isConnected ? (
+        <div className="flex justify-center">
+          <button 
+            onClick={connectAndSwitchNetwork}
+            className="w-36 py-3 text-lg font-semibold tracking-wide rounded-full border border-gray-500 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out"
+          >
+            Connect Wallet
+          </button>
+        </div>
+      ) : !isCorrectNetwork ? (
+        <div className="flex flex-col items-center">
+          <p className="text-yellow-500 mb-4">Please switch to Core Testnet</p>
+          <button 
+            onClick={connectAndSwitchNetwork}
+            className="w-48 py-3 text-lg font-semibold tracking-wide rounded-full border border-yellow-500 bg-gradient-to-b from-gray-900 to-gray-800 text-yellow-400 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out"
+          >
+            Switch to Core Testnet
+          </button>
+        </div>
+      ) : (
+        <form onSubmit={handleStake}>
+          <div className="mb-4">
+            <div className="flex justify-between items-center">
+              <p className="text-gray-400">Connected: {address?.substring(0, 6)}...{address?.substring(address.length - 4)}</p>
+              <p className="text-gray-400">
+                Balance: {coreBalance ? parseFloat(formatEther(coreBalance.value)).toFixed(4) : '0'} CORE
+              </p>
+            </div>
+          </div>
+          
+          {stakeError && (
+            <div className="p-4 mb-4 bg-red-900/30 border border-red-700 rounded-lg">
+              <p className="text-red-400">{stakeError}</p>
+            </div>
+          )}
+          
+          {stakeSuccess && (
+            <div className="p-4 mb-4 bg-green-900/30 border border-green-700 rounded-lg">
+              <p className="text-green-400">Successfully staked CORE tokens!</p>
+            </div>
+          )}
+          
+          {/* Farm Selection */}
+          <div className="p-4 bg-black border border-gray-600 rounded-lg mb-4">
+            <div className="mb-2 text-gray-400">Select Farm</div>
+            <select
+              id="farmId"
+              value={farmId}
+              onChange={(e) => setFarmId(e.target.value)}
+              className="w-full p-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring focus:ring-indigo-400"
+              disabled={isStaking || isWritePending}
+            >
+              {farmCount ? (
+                Array.from({ length: Number(farmCount) }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    Farm #{i + 1}
+                  </option>
+                ))
+              ) : (
+                <option value="1">Farm #1</option>
+              )}
+            </select>
+          </div>
+          
+          {/* CORE Staking Amount */}
+          <div className="p-4 mt-5 bg-black border border-gray-600 rounded-lg">
+            <div className="flex justify-between items-center mb-2 text-gray-400">
+              <span>CORE Staking Amount</span>
+            </div>
+            <div className="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2">
+              <input
+                id="amount"
+                type="text"
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none p-2"
+                disabled={isStaking || isWritePending}
+              /> 
+              <span className="text-gray-400 pr-2">CORE</span>
+            </div>
+            {amount && coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value)) && (
+              <p className="text-red-500 text-sm mt-1">Insufficient balance</p>
+            )}
+          </div>
+          
+          {/* Duration Selection */}
+          <div className="p-4 bg-black border border-gray-600 rounded-lg mt-4">
+            <div className="mb-2 text-gray-400">Duration of the Stake</div>
+            <select
+              id="duration"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              className="w-full p-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring focus:ring-indigo-400"
+              disabled={isStaking || isWritePending}
+            >
+              <option value="" disabled>Select duration</option>
+              <option value="3 months">3 Months</option>
+              <option value="6 months">6 Months</option>
+              <option value="1 year">1 Year</option>
+            </select>
+          </div>
+          
+          {/* Confirm Button */}
+          <div className="pt-6 flex justify-center">
+            <button 
+              type="submit"
+              disabled={isStaking || isWritePending || !amount || !duration || (amount && coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value)))}
+              className={`w-36 py-3 text-lg font-semibold tracking-wide rounded-full border border-gray-500 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out ${
+                isStaking || isWritePending || !amount || !duration || (amount && coreBalance && parseFloat(amount) > parseFloat(formatEther(coreBalance.value))) 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : ''
+              }`}
+            >
+              {isStaking || isWritePending ? 'Staking...' : 'Confirm'}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
-    <div className="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2">
-      <input
-        id="title"
-        type="text"
-        placeholder="0.00"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        className="flex-1 bg-transparent text-white placeholder-gray-500 outline-none p-2"
-      />
-      
-    </div>
-  </div>
-
-  {/* Duration Selection */}
-  <div className="p-4 bg-black border border-gray-600 rounded-lg mt-4">
-    <div className="mb-2 text-gray-400">Duration of the Stake</div>
-    <select
-      id="duration"
-      value={duration}
-      onChange={(e) => setDuration(e.target.value)}
-      className="w-full p-4 bg-gray-900 text-white border border-gray-700 rounded-lg focus:ring focus:ring-indigo-400"
-    >
-      <option value="" disabled>Select duration</option>
-      <option value="3 months">3 Months</option>
-      <option value="6 months">6 Months</option>
-      <option value="1 year">1 Year</option>
-    </select>
-  </div>
-
-  {/* Confirm Button */}
-  <div className="pt-6 flex justify-center">
-  <button className="w-36 py-3 text-lg font-semibold tracking-wide rounded-full border border-gray-500 bg-gradient-to-b from-gray-900 to-gray-800 text-gray-200 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 ease-in-out">
-    Confirm
-  </button>
-</div>
-
 
 </ModalContent>
         </ModalBody>
