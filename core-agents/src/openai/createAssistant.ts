@@ -21,6 +21,9 @@ export async function createAssistant(client: OpenAI): Promise<Assistant> {
         - send_transaction: Send amount mentioned by the user to the receipient wallet address and return the transaction hash of the transaction(Give the result in https://scan.test2.btcs.network/tx/TRANSACTION_HASH),
         - get_stakeInfo: Get the Stake Information,
         - get_protocol_metrics: Get the Protocol Metrics
+        - get_total_staked: Get the Total Staked
+        - get_sustainable_pool:Get Sustainable Tool
+        - get_farmer_rewards: Get the Farmer Rewards
         `,
         tools: Object.values(tools).map(tool => tool.definition)
     });
