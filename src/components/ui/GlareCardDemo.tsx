@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import {
   Modal,
   ModalBody,
@@ -10,6 +10,9 @@ import {
 } from "./animated-modal";
 import { GlareCard } from "../ui/glare-card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useReadContract } from 'wagmi';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/config'; // Adjust the path as needed
+
 
 // Sample data for the graph
 const data = [
@@ -24,8 +27,31 @@ const data = [
   
 
 export function GlareCardDemo() {
+  const [farmId, setFarmId] = useState<string>('1');
   const [amount, setAmount] = useState("");
   const [duration, setDuration] = useState("");
+
+  const { data: farmInfo, refetch, isLoading, isError, error } = useReadContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: CONTRACT_ABI,
+    functionName: 'getFarmInfo',
+    args: [BigInt(farmId)],
+  });
+
+  const parsedFarmInfo = farmInfo ? {
+    farmHealth: farmInfo[0].toString(),
+    yieldScore: farmInfo[1].toString(),
+    farmAPY: farmInfo[2].toString(),
+    farmerAddress: farmInfo[3] as string,
+    farmTotalStaked: farmInfo[4].toString()
+  } : null;
+
+  useEffect(() => {
+    refetch();
+  }, [farmId, refetch]);
+
+
+
 
   return (
     <div className="w-full bg-black">
@@ -36,7 +62,7 @@ export function GlareCardDemo() {
           <GlareCard className="flex flex-col items-start justify-end py-8 px-6">
             <p className="font-bold text-white text-lg">Max Yield : 72%</p>
             <p className="font-normal text-base text-neutral-200 mt-4">
-              Farmer ID : 294hwoc78n <br />
+              Farm ID : 1 <br />
             </p>
             <p className="font-normal text-base text-neutral-200">
               PiCore ID : PiC25
@@ -55,24 +81,54 @@ export function GlareCardDemo() {
 
   <hr className="border-gray-300 dark:border-neutral-700 py-2 mb-4" />
 
-  <div className="space-y-4 text-lg text-neutral-100 font-medium">
-    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
-      <span className="text-gray-400">Farm Health</span>
-      <span className="font-semibold text-white">72</span>
-    </div>
-    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
-      <span className="text-gray-400">Yield Score</span>
-      <span className="font-semibold text-white">65</span>
-    </div>
-    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
-      <span className="text-gray-400">Farm APY</span>
-      <span className="font-semibold text-white">59%</span>
-    </div>
-    <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
-      <span className="text-gray-400">Farmer Address</span>
-      <span className="font-mono text-blue-400">2649jhsb36f</span>
-    </div>
-  </div>
+  {isLoading && (
+        <div className="text-blue-400 mb-4">Loading farm data...</div>
+      )}
+
+  {isError && (
+        <div className="text-red-500 mb-4">Error loading farm data: {error?.message}</div>
+      )}
+
+
+<div className="space-y-4 text-lg text-neutral-100 font-medium">
+        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+          <span className="text-gray-400">Farm Health</span>
+          <span className="font-semibold text-white">
+            {isLoading ? '...' : parsedFarmInfo?.farmHealth || '0'}
+          </span>
+        </div>
+        
+        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+          <span className="text-gray-400">Yield Score</span>
+          <span className="font-semibold text-white">
+            {isLoading ? '...' : parsedFarmInfo?.yieldScore || '0'}
+          </span>
+        </div>
+        
+        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+          <span className="text-gray-400">Farm APY</span>
+          <span className="font-semibold text-white">
+            {isLoading ? '...' : `${parsedFarmInfo?.farmAPY || '0'}%`}
+          </span>
+        </div>
+        
+        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+          <span className="text-gray-400">Farmer Address</span>
+          <span className="font-mono text-blue-400">
+            {isLoading ? '...' : parsedFarmInfo?.farmerAddress?.substring(0, 6) + 
+              '...' + 
+              parsedFarmInfo?.farmerAddress?.substring(parsedFarmInfo.farmerAddress.length - 4) || 
+              '0x0'}
+          </span>
+        </div>
+        
+        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+          <span className="text-gray-400">Farm Total Staked</span>
+          <span className="font-mono text-blue-400">
+            {isLoading ? '...' : parsedFarmInfo?.farmTotalStaked || '0'}
+          </span>
+        </div>
+      </div>
 </ModalContent>
 
 
@@ -179,16 +235,8 @@ export function GlareCardDemo() {
 
 
 </ModalContent>
-
-          
         </ModalBody>
-      
       </Modal>
-
-
-
-
-
           </ModalFooter>
         </ModalBody>
       

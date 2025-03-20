@@ -2,7 +2,10 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "./Spotlight";
 
+
+
 export function SpotlightPreview1() {
+ 
   return (
     <div className="relative flex h-full w-full overflow-hidden rounded-md bg-black/[0.96] antialiased md:items-center md:justify-center">
       <div
