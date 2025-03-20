@@ -1,7 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
-import { formatEther } from 'viem';
 
 // Contract ABI for the getStakeInfo function
 const contractAbi = [
@@ -59,10 +58,13 @@ export default function StakeInfoComponent() {
       try {
         const [stakedAmount, farmId, potentialReward, timeStaked, farmAPY, farmerAddress] = stakeInfo;
         
+        // Convert from wei to Core tokens
+        const toCore = (value: bigint) => (Number(value) / 1e18).toFixed(4);
+
         setFormattedStakeInfo({
-          stakedAmount: formatEther(stakedAmount),
+          stakedAmount: toCore(stakedAmount),
           farmId: Number(farmId),
-          potentialReward: formatEther(potentialReward),
+          potentialReward: toCore(potentialReward),
           timeStakedDays: Number(timeStaked) / 86400, // Convert seconds to days
           farmAPY: Number(farmAPY) / 100, // Assuming APY is stored as percentage * 100
           farmerAddress: farmerAddress
@@ -122,7 +124,7 @@ export default function StakeInfoComponent() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-3 bg-gray-100 rounded-md">
             <p className="text-sm text-gray-500">Staked Amount</p>
-            <p className="text-lg font-medium">{formattedStakeInfo.stakedAmount} ETH</p>
+            <p className="text-lg font-medium">{formattedStakeInfo.stakedAmount} CORE</p>
           </div>
           
           <div className="p-3 bg-gray-100 rounded-md">
@@ -132,7 +134,7 @@ export default function StakeInfoComponent() {
           
           <div className="p-3 bg-gray-100 rounded-md">
             <p className="text-sm text-gray-500">Potential Reward</p>
-            <p className="text-lg font-medium">{formattedStakeInfo.potentialReward} ETH</p>
+            <p className="text-lg font-medium">{formattedStakeInfo.potentialReward} CORE</p>
           </div>
           
           <div className="p-3 bg-gray-100 rounded-md">
