@@ -4,23 +4,8 @@ import { cn } from "@/lib/utils";
 import { Spotlight } from "./Spotlight";
 import { Dialog } from "@headlessui/react";
 import { useState, useEffect } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
-const contractAbi = [
-  {
-    inputs: [{ name: "_address", type: "address" }],
-    name: "getStakeInfo",
-    outputs: [
-      { name: "stakedAmount", type: "uint256" },
-      { name: "farmId", type: "uint256" },
-      { name: "potentialReward", type: "uint256" },
-      { name: "timeStaked", type: "uint256" },
-      { name: "farmAPY", type: "uint256" },
-      { name: "farmerAddress", type: "address" }
-    ],
-    stateMutability: "view",
-    type: "function"
-  }
-] as const;
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from "@/utils/config";
 
 interface FormattedStakeInfo {
   stakedAmount: string;
@@ -42,7 +27,31 @@ export function SpotlightPreview2() {
   const [formattedStakeInfo, setFormattedStakeInfo] = useState<FormattedStakeInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const contractAddress = '0xBb18d4C99aB77b6986a19155690E76eECee1f186' as `0x${string}`;
+  const { writeContract } = useWriteContract();
+
+  const handleWithdraw = async () => {
+    try {
+      if (!isConnected) {
+        alert("Connect your wallet first!");
+        return;
+      }
+  
+      const { hash } = await writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'withdraw',
+        args: [], // No arguments required
+      });
+  
+      console.log("Transaction hash:", hash);
+  
+      alert(`Withdraw successful! Transaction hash: ${hash}`);
+    } catch (err) {
+      console.error("Withdrawal failed:", err);
+      alert(`Error: ${err.message}`);
+    }
+  };
+    
 
 
   // Read contract data using wagmi hook
@@ -52,8 +61,8 @@ export function SpotlightPreview2() {
     isLoading, 
     error: contractError 
   } = useReadContract({
-    address: contractAddress,
-    abi: contractAbi,
+    address: CONTRACT_ADDRESS,
+    abi: CONTRACT_ABI,
     functionName: 'getStakeInfo',
     args: address ? [address] : undefined,
     enabled: isConnected && !!address,
@@ -196,7 +205,7 @@ export function SpotlightPreview2() {
       
       <div className="mt-6 flex justify-center">
         <button 
-          onClick={() => setIsWarningOpen(true)}
+          onClick={handleWithdraw}
           className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-lg shadow-lg transition-all">
           Withdraw
         </button>
