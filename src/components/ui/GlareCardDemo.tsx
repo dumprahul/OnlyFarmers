@@ -12,8 +12,9 @@ import { GlareCard } from "../ui/glare-card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/config'; // Adjust the path as needed
-
-
+import { useAccount, useConnect, useDisconnect,useSwitchChain } from 'wagmi';
+import { injected } from 'wagmi/connectors';
+import { coreTestnet } from '../../utils/wagmiClient';
 // Sample data for the graph
 const data = [
   { name: "Jan", yield: 50 },
@@ -27,9 +28,26 @@ const data = [
   
 
 export function GlareCardDemo() {
+  const { address, isConnected, chainId } = useAccount();
+  const { disconnect } = useDisconnect();
+  const { switchChain } = useSwitchChain();
+  const { connect } = useConnect();
   const [farmId, setFarmId] = useState<string>('1');
   const [amount, setAmount] = useState("");
   const [duration, setDuration] = useState("");
+
+  const isCorrectNetwork = chainId === coreTestnet.id;
+
+
+  const connectAndSwitchNetwork = async () => {
+    try {
+      await connect({ connector: injected() }); // Connect to wallet
+      await switchChain({ chainId: coreTestnet.id }); // Switch to the correct network
+    } catch (err) {
+      console.error('Error during connection or network switch:', err);
+    }
+  };
+  
 
   const { data: farmInfo, refetch, isLoading, isError, error } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
@@ -122,12 +140,24 @@ export function GlareCardDemo() {
           </span>
         </div>
         
-        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
+        {/* <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center">
           <span className="text-gray-400">Farm Total Staked</span>
           <span className="font-mono text-blue-400">
             {isLoading ? '...' : parsedFarmInfo?.farmTotalStaked || '0'}
           </span>
-        </div>
+        </div> */}
+        <div className="p-4 bg-black border border-gray-600 rounded-lg flex justify-between items-center overflow-hidden">
+  <span className="text-gray-400">Tx-</span>
+  <a
+    href="https://scan.test2.btcs.network/tx/0xbaf6823b7930011159ee034c81b43a47bc1a0a22e32237911deb8f18166300d6"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="font-mono text-blue-400 truncate"
+  >
+    https://scan.test2.btcs.network/tx/0xbaf6823b7930011159ee034c81b43a47bc1a0a22e32237911deb8f18166300d6
+  </a>
+</div>
+
       </div>
 </ModalContent>
 
@@ -174,8 +204,8 @@ export function GlareCardDemo() {
 
       <Modal>
         <ModalTrigger>
-            <button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-2 rounded-md border border-black w-28">
-              Stake 
+            <button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-2 rounded-md border border-black w-28" onClick={connectAndSwitchNetwork}>
+              Connect Wallet
             </button>
             </ModalTrigger>
             

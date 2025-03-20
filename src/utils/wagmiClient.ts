@@ -2,6 +2,8 @@
 import { createConfig, http } from 'wagmi'
 import { createPublicClient } from 'viem'
 import { defineChain } from "viem";
+import { injected } from 'wagmi/connectors'
+
 
 export const coreTestnet = /*#__PURE__*/ defineChain({
     id: 1114,
@@ -25,8 +27,11 @@ export const coreTestnet = /*#__PURE__*/ defineChain({
 
 export const config = createConfig({
   chains: [coreTestnet],
+  connectors: [
+    injected()
+  ],
   transports: {
-    [coreTestnet.id]: http(),
+    [coreTestnet.id]: http(coreTestnet.rpcUrls.default.http[0]),
   },
 })
 
