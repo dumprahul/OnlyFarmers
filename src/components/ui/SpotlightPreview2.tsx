@@ -22,25 +22,25 @@ export function SpotlightPreview2() {
           Dashboard 
         </h1>
         <h2 className="bg-opacity-50 bg-gradient-to-b from-neutral-50 mt-4 to-neutral-400 bg-clip-text text-center text-4xl font-normal text-transparent md:text-2xl">
-          Your Stakes
+          Connect you wallet to see your stakes
         </h2>
 
         {/* Input Field */}
-        <div className="flex flex-col gap-2 w-80 mx-auto mt-4">
+        {/* <div className="flex flex-col gap-2 w-80 mx-auto mt-4">
           <input
             type="text"
             id="address"
             placeholder="Enter your address"
             className="w-full p-3 rounded-xl border border-gray-400 bg-transparent text-black placeholder-gray-600 shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:ring-white"
           />
-        </div>
+        </div> */}
 
         {/* View Stakes Button */}
         <button 
           onClick={() => setIsModalOpen(true)} 
           className="bg-black dark:bg-white mt-6 rounded-full w-fit text-white dark:text-black px-4 py-2 mx-auto block"
         >
-          View Stakes
+          Connect Wallet
         </button>
       </div>
 
