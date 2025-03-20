@@ -1,4 +1,6 @@
 import { getBalanceTool } from './getBalance';
+import { getProtocolMetricsTool } from './getProtocolMetrics';
+import { getStakeInfoTool } from './getStakeInfo';
 import { getWalletAddressTool } from './getWalletAddress';
 import { sendTransactionTool } from './sendTransaction';
 
@@ -22,4 +24,6 @@ export const tools: Record<string, ToolConfig> = {
     get_balance: getBalanceTool,
     get_wallet_address: getWalletAddressTool,
     send_transaction: sendTransactionTool, 
+    get_stake_info: getStakeInfoTool,
+    get_protocol_metrics: getProtocolMetricsTool
 };
