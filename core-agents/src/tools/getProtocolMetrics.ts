@@ -1,4 +1,4 @@
-import { Address } from 'viem';
+import { Address, formatUnits } from 'viem';
 import { createViemPublicClient } from '../viem/createViemPublicClient.js';
 import { ToolConfig } from './allTools.js';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../utils/config.js';
@@ -43,18 +43,27 @@ export async function getProtocolMetrics(
     contract: Address,
     abi: any[]
 ) {
-    const publicClient = createViemPublicClient();
-    const result = await publicClient.readContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'getProtocolMetrics',
-        args: []
-    }) as [bigint, bigint, bigint, bigint];
+    try {
+        const publicClient = createViemPublicClient();
+        const result = await publicClient.readContract({
+            address: CONTRACT_ADDRESS,
+            abi: CONTRACT_ABI,
+            functionName: 'getProtocolMetrics',
+            args: []
+        }) as [bigint, bigint, bigint, bigint];
 
-    return {
-        totalStaked: result[0].toString(),
-        farmerRewards: result[1].toString(),
-        sustainablePool: result[2].toString(),
-        farmCount: Number(result[3])
-    };
+        console.log("Raw Protocol Metrics:", result);
+
+        // Format values properly
+        const totalStaked = Number(result[0]) / 1e18;
+        const farmerRewards = Number(result[1]) / 1e18;
+        const sustainablePool = Number(result[2]) / 1e18;
+        const farmCount = Number(result[3]);
+
+        return `I have fetched the protocol metrics. The details are as follows:\n
+        - **Total Staked:** ${totalStaked} tCORE2\n        - **Total Rewards Distributed:** ${farmerRewards} tCORE2\n        - **Sustainable Pool:** ${sustainablePool} tCORE2\n        - **Total Farms:** ${farmCount}`;
+    } catch (error) {
+        console.error('Error fetching protocol metrics:', error);
+        return "Failed to retrieve protocol metrics. Please try again later.";
+    }
 }
