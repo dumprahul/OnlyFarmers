@@ -3,7 +3,11 @@ OnlyFarmers - A DePiN based Yield Optimisation/Tokenisation on CORE with AI auto
 In this repo, Main branch has the full functional Decentralized App, built on Core.
 Master branch has the AI agent files and the contracts(both test contract and main contract).
 
+Contract address - 0xBb18d4C99aB77b6986a19155690E76eECee1f186
+
 Main Branch(Steps to run the OnlyFarmers Dapp)-
+
+
 
 ## 1. Clone the Repository
 
