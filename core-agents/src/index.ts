@@ -45,7 +45,7 @@ async function chat(thread: Thread, assistant: Assistant): Promise<void> {
             
 
             if (result?.type === 'text') {
-                console.log('\nLeo Das🔥 :', result.text.value);
+                console.log('\nAgent Cooper🔥 :', result.text.value);
             }
         } catch (error) {
             console.error('Error during chat:', error instanceof Error ? error.message : 'Unknown error');
