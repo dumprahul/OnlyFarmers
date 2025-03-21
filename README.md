@@ -39,6 +39,7 @@ Follow these steps to set up and run the agents:
 
 ```bash
 https://github.com/dumprahul/core-hack-blr/tree/master
+cd core-agents
 ```
 
 ## 2. Create an .env file
@@ -61,3 +62,4 @@ npm install
 ```bash
 npm run start
 ```
+
