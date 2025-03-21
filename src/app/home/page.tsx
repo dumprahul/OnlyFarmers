@@ -41,7 +41,7 @@ export default function Home() {
       </a>
     </div>
     <p className="text-xs text-neutral-500 mt-2">
-      © {new Date().getFullYear()} SheFunded. All rights reserved.
+      © {new Date().getFullYear()} OnlyFarmers. All rights reserved.
     </p>
   </div>
 </footer>
