@@ -8,7 +8,7 @@ Main Branch(Steps to run the OnlyFarmers Dapp)-
 ## 1. Clone the Repository
 
 ```bash
-https://github.com/dumprahul/core-hack-blr
+https://github.com/dumprahul/OnlyFarmers
 ```
 
 ## 2. Install the dependencies
@@ -38,7 +38,7 @@ Follow these steps to set up and run the agents:
 ## 1. Clone the Repository
 
 ```bash
-https://github.com/dumprahul/core-hack-blr/tree/master
+https://github.com/dumprahul/OnlyFarmers/tree/master
 cd core-agents
 ```
 
