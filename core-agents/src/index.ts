@@ -60,7 +60,7 @@ async function main(): Promise<void> {
         const assistant = await createAssistant(client);
         const thread = await createThread(client);
 
-        console.log("Hey I'm Leo Das son of Das. Leave your transactions to me, vedika viduven naa!🚀")
+        console.log("Hey I'm Agent Cooper.🚀")
         console.log('Chat started! Type "exit" to end the conversation.');
         await chat(thread, assistant);
     } catch (error) {
